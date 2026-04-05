@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Record & Mix Level Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ── DARK THEME ── */
+  :root, [data-theme="dark"] {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: #2a2a3a;
+    --border-row: rgba(42,42,58,0.6);
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --text: #e8e8f0;
+    --text-muted: #8888aa;
+    --text-dim: #444460;
+    --text-head: #ffffff;
+    --hover-row: rgba(0,229,255,0.04);
+    --grid-color: rgba(0,229,255,0.03);
+    --tips-bg: #111118;
+    --scrollbar-thumb: #2a2a3a;
+    --toggle-bg: #1a1a24;
+    --toggle-border: #2a2a3a;
+  }
+
+  /* ── LIGHT THEME ── */
+  [data-theme="light"] {
+    --bg: #f5f5f0;
+    --surface: #ffffff;
+    --surface2: #eeeeea;
+    --border: #d8d8d0;
+    --border-row: rgba(200,200,190,0.5);
+    --accent: #0077aa;
+    --accent2: #cc4400;
+    --accent3: #2a7a00;
+    --text: #1a1a1a;
+    --text-muted: #555550;
+    --text-dim: #aaaaaa;
+    --text-head: #000000;
+    --hover-row: rgba(0,119,170,0.04);
+    --grid-color: rgba(0,0,0,0.03);
+    --tips-bg: #ffffff;
+    --scrollbar-thumb: #cccccc;
+    --toggle-bg: #e8e8e4;
+    --toggle-border: #ccccc8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 52px 24px 80px;
+  }
+
+  /* ── TOGGLE ── */
+  .theme-toggle {
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    z-index: 100;
+    background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border);
+    border-radius: 100px;
+    padding: 8px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+    user-select: none;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-toggle .icon { font-size: 14px; line-height: 1; }
+
+  /* ── HEADER ── */
+  header { margin-bottom: 48px; animation: fadeDown 0.6s ease both; }
+
+  .header-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    opacity: 0.8;
+  }
+
+  h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(24px, 4.5vw, 44px);
+    font-weight: 700;
+    color: var(--text-head);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  h1 span { color: var(--accent); }
+
+  .header-sub {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    color: var(--accent2);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent2) 0%, transparent 100%);
+    opacity: 0.3;
+  }
+
+  /* ── TIPS ── */
+  .tips-section {
+    background: var(--tips-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin-bottom: 44px;
+    animation: fadeUp 0.6s 0.1s ease both;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .tips-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text-head);
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .tips-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .tips-list li {
+    font-size: 13px;
+    color: var(--text);
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.65;
+  }
+  .tips-list li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 10px;
+    top: 4px;
+  }
+  .tips-list li strong { color: var(--accent); font-weight: 500; }
+
+  /* ── TABLES (desktop) ── */
+  .table-section { margin-bottom: 44px; animation: fadeUp 0.6s 0.2s ease both; }
+  .table-section + .table-section { animation-delay: 0.3s; }
+
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    -webkit-overflow-scrolling: touch;
+    transition: border-color 0.3s;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+  thead tr {
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  thead th {
+    padding: 13px 16px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    font-weight: 400;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border-row);
+    transition: background 0.12s;
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--hover-row); }
+
+  tbody td { padding: 13px 16px; vertical-align: top; line-height: 1.55; }
+
+  .td-instrument {
+    font-weight: 500;
+    color: var(--text-head);
+    font-size: 13px;
+    white-space: nowrap;
+    min-width: 150px;
+  }
+  .td-level {
+    font-family: 'Space Mono', monospace;
+    font-size: 11.5px;
+    color: var(--accent3);
+    white-space: nowrap;
+  }
+  .td-lufs {
+    font-family: 'Space Mono', monospace;
+    font-size: 11.5px;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+  .td-pan { font-size: 12px; color: var(--text-muted); white-space: nowrap; }
+  .td-note { font-size: 12px; color: var(--text-muted); min-width: 180px; }
+
+  /* ── MOBILE CARD MODE ── */
+  @media (max-width: 640px) {
+    .container { padding: 56px 14px 60px; }
+    .theme-toggle { top: 14px; right: 14px; padding: 7px 12px; font-size: 10px; }
+    .tips-section { padding: 18px 16px; }
+    .tips-list li { font-size: 12.5px; }
+
+    .table-wrapper {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      overflow: visible;
+    }
+    table { display: block; }
+    thead { display: none; }
+    tbody {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    tbody tr {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border) !important;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    tbody tr:hover { background: var(--surface); }
+
+    tbody td {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 4px 0;
+      font-size: 12.5px;
+      border: none;
+    }
+    tbody td::before {
+      content: attr(data-label);
+      font-family: 'Space Mono', monospace;
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      min-width: 52px;
+      flex-shrink: 0;
+      padding-top: 1px;
+    }
+
+    .td-instrument {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: normal;
+      min-width: unset;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-row);
+      width: 100%;
+    }
+    .td-instrument::before { display: none; }
+
+    .td-level, .td-lufs, .td-pan, .td-note { white-space: normal; min-width: unset; }
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-top: 48px;
+    letter-spacing: 0.1em;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
+  <span class="icon" id="themeIcon">☀️</span>
+  <span id="themeLabel">LIGHT</span>
+</button>
+
+<div class="container">
+
+  <header>
+    <div class="header-tag">// Audio Engineering Reference</div>
+    <h1>Record & Mix<br><span>Level Guide</span></h1>
+    <p class="header-sub">레코딩 및 믹스 레벨 설정 레퍼런스 — Level 1</p>
+  </header>
+
+  <div class="tips-section">
+    <div class="tips-title">🔧 믹스 레벨 설정 팁</div>
+    <ul class="tips-list">
+      <li><strong>Gain Staging 먼저!</strong> — 모든 트랙의 Gain을 EQ/Compressor 전 <strong>-12dBFS</strong> 내외로 맞추고 시작</li>
+      <li><strong>마스터 버스 피크는 -6dBFS 이하로 제한</strong> — 마스터링 단계 헤드룸 확보용</li>
+      <li><strong>페이더 믹싱 시 반복 청취</strong> — 각 악기 간 충돌/마스킹 없는지 체크</li>
+      <li><strong>Low-Cut 필수 적용</strong> — Pad, FX, 기타 앰비언스 계열은 <strong>100~150Hz</strong> 이하 컷 추천</li>
+      <li><strong>Reference 트랙 A/B 비교</strong> — LUFS 기준으로 전체 밸런스 확인</li>
+      <li><strong>무조건 Center에 두지 말고 배치에 의미 부여</strong> — 패닝 + EQ 공간 분리 함께 고려</li>
+    </ul>
+  </div>
+
+  <!-- Mix Level Table -->
+  <div class="table-section">
+    <div class="section-label">믹스 레벨 기준표</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>악기 / 소스</th>
+            <th>권장 피크 레벨</th>
+            <th>RMS / LUFS</th>
+            <th>패닝 방향</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-instrument">Lead Vocal</td>
+            <td class="td-level" data-label="Peak">-10 ~ -6 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -12 LUFS</td>
+            <td class="td-pan" data-label="Pan">Center</td>
+            <td class="td-note" data-label="메모">곡 중심, 컴프 후 레벨 정리</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Backing Vocal</td>
+            <td class="td-level" data-label="Peak">-15 ~ -10 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-22 ~ -16 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 30~50%</td>
+            <td class="td-note" data-label="메모">리드보다 작고 공간감 있게 배치</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Kick Drum</td>
+            <td class="td-level" data-label="Peak">-8 ~ -5 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-16 ~ -12 LUFS</td>
+            <td class="td-pan" data-label="Pan">Center</td>
+            <td class="td-note" data-label="메모">믹스의 바닥, 로우엔드 핵심</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Snare Drum</td>
+            <td class="td-level" data-label="Peak">-10 ~ -6 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -14 LUFS</td>
+            <td class="td-pan" data-label="Pan">Center (약간 오른쪽 가능)</td>
+            <td class="td-note" data-label="메모">중역 타격감 중심</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Hi-Hats / Cymbals</td>
+            <td class="td-level" data-label="Peak">-20 ~ -14 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-24 ~ -18 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 30~70%</td>
+            <td class="td-note" data-label="메모">과하지 않게, 공간감 조절</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Toms</td>
+            <td class="td-level" data-label="Peak">-12 ~ -8 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-20 ~ -16 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 30~80% (스테레오 퍼짐)</td>
+            <td class="td-note" data-label="메모">이동감 강조</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Bass (DI or Amp)</td>
+            <td class="td-level" data-label="Peak">-10 ~ -6 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -12 LUFS</td>
+            <td class="td-pan" data-label="Pan">Center</td>
+            <td class="td-note" data-label="메모">로우를 채우되 킥과 충돌 피하기</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Electric Guitar (Rhythm)</td>
+            <td class="td-level" data-label="Peak">-15 ~ -10 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-20 ~ -16 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 40~70%</td>
+            <td class="td-note" data-label="메모">더블링 시 양쪽 대칭 추천</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Electric Guitar (Lead)</td>
+            <td class="td-level" data-label="Peak">-12 ~ -8 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -14 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 15~25% (혹은 Center)</td>
+            <td class="td-note" data-label="메모">주 멜로디 시에는 중앙 쪽 유지</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Acoustic Guitar</td>
+            <td class="td-level" data-label="Peak">-18 ~ -12 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-22 ~ -18 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 30~50%</td>
+            <td class="td-note" data-label="메모">백업용이면 더 작고 넓게</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Piano / Keys</td>
+            <td class="td-level" data-label="Peak">-15 ~ -10 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-20 ~ -16 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 20~40%</td>
+            <td class="td-note" data-label="메모">코드/패드 중심, 곡 분위기에 따라 조정</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Synth Lead</td>
+            <td class="td-level" data-label="Peak">-12 ~ -8 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -14 LUFS</td>
+            <td class="td-pan" data-label="Pan">Center or Narrow L/R</td>
+            <td class="td-note" data-label="메모">멜로디 중심이면 보컬과 간섭 주의</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Synth Pad / Strings</td>
+            <td class="td-level" data-label="Peak">-20 ~ -14 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-24 ~ -18 LUFS</td>
+            <td class="td-pan" data-label="Pan">Wide L/R (50~100%)</td>
+            <td class="td-note" data-label="메모">공간감 연출, Low-cut 필수</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Percussion (Congas, Shaker 등)</td>
+            <td class="td-level" data-label="Peak">-18 ~ -12 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-22 ~ -18 LUFS</td>
+            <td class="td-pan" data-label="Pan">L/R 20~60%</td>
+            <td class="td-note" data-label="메모">리듬감과 공간감 강조</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">Ambience / Texture</td>
+            <td class="td-level" data-label="Peak">-24 ~ -16 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-30 ~ -22 LUFS</td>
+            <td class="td-pan" data-label="Pan">Full Stereo 또는 후방 이미지</td>
+            <td class="td-note" data-label="메모">배경 채움용, 믹스 "공기" 역할</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recording Level Table -->
+  <div class="table-section">
+    <div class="section-label">레코딩 입력 레벨 기준표</div>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>악기 / 소스</th>
+            <th>권장 피크 레벨</th>
+            <th>RMS 대역 (대략)</th>
+            <th>설명</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-instrument">🎤 보컬 (리드/더빙)</td>
+            <td class="td-level" data-label="Peak">-12 ~ -6 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -12 dBFS</td>
+            <td class="td-note" data-label="메모">다이내믹 대비를 위해 여유 있게 녹음 (사우팅 시도 고려)</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🥁 킥 드럼</td>
+            <td class="td-level" data-label="Peak">-10 ~ -6 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-16 ~ -12 dBFS</td>
+            <td class="td-note" data-label="메모">강한 어택, 헤드룸 중요 (Transient 강조)</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🥁 스네어</td>
+            <td class="td-level" data-label="Peak">-12 ~ -6 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -14 dBFS</td>
+            <td class="td-note" data-label="메모">강한 스냅감이 있으므로 피크 대비 여유 확보</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🎶 탐/심벌</td>
+            <td class="td-level" data-label="Peak">-15 ~ -10 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-20 ~ -16 dBFS</td>
+            <td class="td-note" data-label="메모">잔향 많고 피크 예측 어려움 → 넉넉한 헤드룸</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🎸 일렉기타 (앰프마이킹)</td>
+            <td class="td-level" data-label="Peak">-15 ~ -9 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-20 ~ -16 dBFS</td>
+            <td class="td-note" data-label="메모">너무 핫하지 않게 → 디스토션 톤 클립 주의</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🎸 베이스 (DI)</td>
+            <td class="td-level" data-label="Peak">-12 ~ -6 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -12 dBFS</td>
+            <td class="td-note" data-label="메모">로우엔드 안정적으로 잡고 클리핑 주의</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🎹 신스/키보드 (라인)</td>
+            <td class="td-level" data-label="Peak">-12 ~ -8 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -14 dBFS</td>
+            <td class="td-note" data-label="메모">소스에 따라 다르나 전자음은 일정 레벨로 녹음 용이</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🎻 스트링/어쿠스틱</td>
+            <td class="td-level" data-label="Peak">-15 ~ -10 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-22 ~ -16 dBFS</td>
+            <td class="td-note" data-label="메모">마이크 거리, 연주 다이내믹에 따라 레벨 크게 변동됨</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🎤 코러스/백보컬</td>
+            <td class="td-level" data-label="Peak">-15 ~ -10 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-20 ~ -16 dBFS</td>
+            <td class="td-note" data-label="메모">리드보다 낮게 녹음 (믹스에서 아래 깔리게)</td>
+          </tr>
+          <tr>
+            <td class="td-instrument">🎙️ 나레이션/스피치</td>
+            <td class="td-level" data-label="Peak">-12 ~ -8 dBFS</td>
+            <td class="td-lufs" data-label="RMS">-18 ~ -14 dBFS</td>
+            <td class="td-note" data-label="메모">콘덴서 마이크 기준 안정적인 발음 중심 설정</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    Record & Mix Level Guide — Level 1 &nbsp;·&nbsp; Audio Engineering Reference
+  </footer>
+
+</div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = isDark ? 'DARK' : 'LIGHT';
+    localStorage.setItem('rml-theme', isDark ? 'light' : 'dark');
+  }
+
+  // Restore saved theme on load
+  const saved = localStorage.getItem('rml-theme');
+  if (saved === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('themeIcon').textContent = '🌙';
+    document.getElementById('themeLabel').textContent = 'DARK';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>주일예배 믹싱 스케줄</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1a1f2e;
+    --border: #252a3a;
+    --accent1: #4f8ef7;
+    --accent2: #7c5cbf;
+    --accent3: #3ecf8e;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --day1: #4f8ef7;
+    --day2: #7c5cbf;
+    --day3: #3ecf8e;
+    --save-bar-bg: rgba(13,15,20,0.96);
+    --toast-bg: #1a1f2e;
+    --btn-reset-bg: rgba(255,80,80,0.08);
+    --btn-reset-color: #f87171;
+    --btn-reset-border: rgba(248,113,113,0.25);
+  }
+
+  /* 시스템 라이트모드 자동 적용 */
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #f4f6fb;
+      --surface: #ffffff;
+      --surface2: #eef1f7;
+      --border: #dde1ec;
+      --accent1: #2e6fe0;
+      --accent2: #6b3fc0;
+      --accent3: #1aad6e;
+      --text: #1a1f2e;
+      --text-muted: #7a85a0;
+      --text-dim: #4a5268;
+      --day1: #2e6fe0;
+      --day2: #6b3fc0;
+      --day3: #1aad6e;
+      --save-bar-bg: rgba(244,246,251,0.96);
+      --toast-bg: #ffffff;
+      --btn-reset-bg: rgba(200,30,30,0.07);
+      --btn-reset-color: #c02020;
+      --btn-reset-border: rgba(200,30,30,0.2);
+    }
+  }
+
+  /* 수동 토글: [data-theme="light"] */
+  [data-theme="light"] {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #eef1f7;
+    --border: #dde1ec;
+    --accent1: #2e6fe0;
+    --accent2: #6b3fc0;
+    --accent3: #1aad6e;
+    --text: #1a1f2e;
+    --text-muted: #7a85a0;
+    --text-dim: #4a5268;
+    --day1: #2e6fe0;
+    --day2: #6b3fc0;
+    --day3: #1aad6e;
+    --save-bar-bg: rgba(244,246,251,0.96);
+    --toast-bg: #ffffff;
+    --btn-reset-bg: rgba(200,30,30,0.07);
+    --btn-reset-color: #c02020;
+    --btn-reset-border: rgba(200,30,30,0.2);
+  }
+
+  [data-theme="dark"] {
+    --bg: #0d0f14;
+    --surface: #141720;
+    --surface2: #1a1f2e;
+    --border: #252a3a;
+    --accent1: #4f8ef7;
+    --accent2: #7c5cbf;
+    --accent3: #3ecf8e;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --day1: #4f8ef7;
+    --day2: #7c5cbf;
+    --day3: #3ecf8e;
+    --save-bar-bg: rgba(13,15,20,0.96);
+    --toast-bg: #1a1f2e;
+    --btn-reset-bg: rgba(255,80,80,0.08);
+    --btn-reset-color: #f87171;
+    --btn-reset-border: rgba(248,113,113,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+    transition: background 0.3s, color 0.3s;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(79,142,247,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(124,92,191,0.06) 0%, transparent 50%);
+  }
+
+  [data-theme="light"] body,
+  body[data-theme="light"] {
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(46,111,224,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(107,63,192,0.05) 0%, transparent 50%);
+  }
+
+  /* 테마 토글 버튼 */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  .theme-toggle:hover { background: var(--surface2); transform: scale(1.08); }
+  .theme-toggle:active { transform: scale(0.94); }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: clamp(22px, 5vw, 32px);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 10px;
+  }
+
+  .header h1 span {
+    background: linear-gradient(135deg, var(--accent1), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  /* Summary Bar */
+  .summary-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .summary-item {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+
+  .summary-item .val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .summary-item .lbl {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  .summary-item:nth-child(1) .val { color: var(--day1); }
+  .summary-item:nth-child(2) .val { color: var(--day2); }
+  .summary-item:nth-child(3) .val { color: var(--day3); }
+
+  /* Day Card */
+  .day-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .day-card:nth-child(1) { animation-delay: 0.15s; }
+  .day-card:nth-child(2) { animation-delay: 0.25s; }
+  .day-card:nth-child(3) { animation-delay: 0.35s; }
+
+  .day-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .day-header:hover { background: var(--surface2); }
+
+  .day-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .day1 .day-badge { background: rgba(79,142,247,0.15); color: var(--day1); border: 1px solid rgba(79,142,247,0.3); }
+  .day2 .day-badge { background: rgba(124,92,191,0.15); color: var(--day2); border: 1px solid rgba(124,92,191,0.3); }
+  .day3 .day-badge { background: rgba(62,207,142,0.15); color: var(--day3); border: 1px solid rgba(62,207,142,0.3); }
+
+  .day-meta { flex: 1; }
+
+  .day-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+
+  .day-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .day-duration {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+  }
+
+  .chevron {
+    color: var(--text-muted);
+    font-size: 12px;
+    transition: transform 0.3s;
+  }
+
+  .day-card.open .chevron { transform: rotate(180deg); }
+
+  /* Tasks */
+  .tasks {
+    padding: 0 24px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+  }
+
+  .day-card.open .tasks {
+    max-height: 600px;
+    padding: 20px 24px;
+  }
+
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+
+  .task-item:last-child { border-bottom: none; }
+
+  .task-item.done { opacity: 0.4; }
+
+  .task-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    min-width: 80px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .task-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.2s;
+    font-size: 10px;
+  }
+
+  .task-item.done .task-check {
+    background: var(--accent3);
+    border-color: var(--accent3);
+    color: #0d0f14;
+  }
+
+  .task-content { flex: 1; }
+
+  .task-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    line-height: 1.4;
+  }
+
+  .task-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* Day note */
+  .day-note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border-left: 3px solid;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .day1 .day-note { border-color: var(--day1); }
+  .day2 .day-note { border-color: var(--day2); }
+  .day3 .day-note { border-color: var(--day3); }
+
+  /* Progress */
+  .progress-section {
+    margin-top: 28px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px 24px;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+
+  .progress-label span:first-child { color: var(--text-dim); }
+  .progress-pct {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--accent3);
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent1), var(--accent3));
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  /* Save/Load Bar */
+  .save-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 16px;
+    animation: fadeUp 0.6s 0.5s ease both;
+  }
+
+  .btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .btn-save {
+    background: rgba(79,142,247,0.12);
+    color: var(--accent1);
+    border-color: rgba(79,142,247,0.3);
+  }
+
+  .btn-save:hover {
+    background: rgba(79,142,247,0.22);
+  }
+
+  .btn-load {
+    background: rgba(62,207,142,0.10);
+    color: var(--accent3);
+    border-color: rgba(62,207,142,0.3);
+  }
+
+  .btn-load:hover {
+    background: rgba(62,207,142,0.20);
+  }
+
+  .btn-reset {
+    flex: 0.5;
+    background: var(--btn-reset-bg);
+    color: var(--btn-reset-color);
+    border-color: var(--btn-reset-border);
+    font-size: 12px;
+  }
+
+  .btn-reset:hover {
+    background: rgba(255,80,80,0.16);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--toast-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 13px;
+    color: var(--text-dim);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .task-item:active { background: rgba(255,255,255,0.03); border-radius: 8px; }
+  .day-header:active { background: var(--surface2); }
+  .btn:active { transform: scale(0.97); }
+
+  /* 터치 기기에서 hover 효과 제거 */
+  @media (hover: none) {
+    .day-header:hover { background: transparent; }
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Mobile 최적화 ── */
+  @media (max-width: 600px) {
+    body {
+      padding: 24px 14px 100px; /* 하단 고정 버튼 공간 확보 */
+    }
+
+    .theme-toggle { top: 12px; right: 12px; width: 36px; height: 36px; font-size: 16px; }
+
+    .header { margin-bottom: 28px; }
+    .header-label { font-size: 10px; letter-spacing: 2px; }
+
+    /* 요약 바: 가로 3칸 유지, 글씨 축소 */
+    .summary-bar { gap: 8px; margin-bottom: 24px; }
+    .summary-item { padding: 10px 8px; }
+    .summary-item .val { font-size: 14px; }
+    .summary-item .lbl { font-size: 10px; }
+
+    /* 카드 헤더 */
+    .day-header { padding: 14px 16px; gap: 10px; }
+    .day-badge { width: 38px; height: 38px; font-size: 12px; border-radius: 8px; }
+    .day-title { font-size: 14px; }
+    .day-subtitle { font-size: 11px; }
+    .day-duration { font-size: 11px; padding: 3px 8px; }
+
+    /* 태스크 */
+    .day-card.open .tasks { padding: 14px 16px; max-height: 800px; }
+    .task-item { gap: 10px; padding: 14px 0; } /* 터치 영역 넉넉하게 */
+    .task-time {
+      min-width: 0;
+      width: 68px;
+      font-size: 10px;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+    .task-check { width: 22px; height: 22px; border-radius: 6px; font-size: 11px; } /* 터치 타겟 확대 */
+    .task-name { font-size: 13px; }
+    .task-detail { font-size: 11px; }
+    .day-note { font-size: 11px; padding: 10px 12px; }
+
+    /* 저장 버튼: 하단 고정 플로팅 바 */
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: 0;
+      padding: 12px 16px;
+    background: var(--save-bar-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      z-index: 50;
+      gap: 8px;
+    }
+
+    .btn { padding: 12px 10px; font-size: 12px; border-radius: 10px; }
+    .btn-reset { flex: 0.6; }
+
+    /* 진행률 */
+    .progress-section { margin-top: 20px; padding: 16px 18px; }
+    .progress-label { font-size: 12px; }
+
+    /* 토스트 위치: 하단 바 위로 */
+    .toast { bottom: 80px; }
+  }
+
+  /* 아주 작은 화면 (SE 등) */
+  @media (max-width: 360px) {
+    .summary-item .val { font-size: 12px; }
+    .day-duration { display: none; }
+    .task-time { width: 58px; font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+<button class="theme-toggle" id="themeToggle" title="라이트/다크 전환">🌙</button>
+<div class="container">
+
+  <div class="header">
+    <div class="header-label">Weekly Worship Mix</div>
+    <h1>녹음 <span>믹스 스케줄</span></h1>
+    <p class="header-sub">일 · 월 · 수 &nbsp;|&nbsp; 1시간~1시간 30분</p>
+  </div>
+
+  <div class="summary-bar">
+    <div class="summary-item">
+      <div class="val">일요일</div>
+      <div class="lbl">틀 잡기 · 20~40분</div>
+    </div>
+    <div class="summary-item">
+      <div class="val">월요일</div>
+      <div class="lbl">믹스 완성 · 90분</div>
+    </div>
+    <div class="summary-item">
+      <div class="val">수요일</div>
+      <div class="lbl">FCP 싱크 · 업로드 · 60분</div>
+    </div>
+  </div>
+
+  <!-- DAY 1 -->
+  <div class="day-card day1 open" id="card1">
+    <div class="day-header" onclick="toggleCard('card1')">
+      <div class="day-badge">D1</div>
+      <div class="day-meta">
+        <div class="day-title">일요일 — 틀 잡기</div>
+        <div class="day-subtitle">예배 후 가볍게, 구조만 확정</div>
+      </div>
+      <div class="day-duration">20~40분</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">00:00~05:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">프로젝트 복사 + 템플릿 열기</div>
+          <div class="task-detail">DAW 녹음 프로젝트 맥으로 복사 → 프로젝트 열기 → Logic 프리셋 각 트랙에 불러오기<br> (아웃풋 마스터링 툴 포함)</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">00:00~05:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">INSV → MP4 변환 <span style="font-size:11px;opacity:0.6">(병행)</span></div>
+          <div class="task-detail">인스타 스튜디오에서 INSV 파일을 MP4로 변환 — 파일 복사 중 동시 진행</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">05:00~15:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">마커 설정</div>
+          <div class="task-detail">찬양1 / 찬양2 / 찬양3 / 찬양4 섹션 구분</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">15:00~35:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">게인 스테이징 + 오토메이션 작업</div>
+          <div class="task-detail">Lead Vox → Back Vox → Kick → Snare → Bass → EG → Nord → MODX7 → Back Vox VCA → Reverb</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">35:00~40:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">1차 모니터링 + 메모</div>
+          <div class="task-detail">문제 구간 마킹만 — 수정하지 않고 저장 후 종료</div>
+        </div>
+      </div>
+      <div class="day-note">
+        💡 디테일은 건드리지 않는다. 틀만 잡고 저장.
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 2 -->
+  <div class="day-card day2" id="card2">
+    <div class="day-header" onclick="toggleCard('card2')">
+      <div class="day-badge">D2</div>
+      <div class="day-meta">
+        <div class="day-title">월요일 — 믹스 완성</div>
+        <div class="day-subtitle">오디오 완전 확정 · 마스터링까지</div>
+      </div>
+      <div class="day-duration">60~90분</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">00:00~10:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">오토메이션 마무리 + 게인 점검</div>
+          <div class="task-detail">전날 오토메이션 게인 작업 마무리 / 전체 레벨 재확인</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">10:00~20:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">EQ / 컴프 디테일 수정</div>
+          <div class="task-detail">일요일 메모 기준으로 문제 구간 수정</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">20:00~30:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">버스 리버브 센드량 확정</div>
+          <div class="task-detail">Hall (Drums) → Plate (Lead/Back Vox) 공간감 확정 · 먼저 세팅</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">30:00~40:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">마스터링 체인 세팅</div>
+          <div class="task-detail">S1 Shuffler → C6 → Limiter → LUFS -14 확인 후 오디오 확정</div>
+        </div>
+      </div>
+      <div class="day-note">
+        💡 리버브 확정 → S1 Shuffler → C6 순서 지킬 것. 월요일 끝나면 오디오는 완전히 닫기.
+      </div>
+    </div>
+  </div>
+
+  <!-- DAY 3 -->
+  <div class="day-card day3" id="card3">
+    <div class="day-header" onclick="toggleCard('card3')">
+      <div class="day-badge">D3</div>
+      <div class="day-meta">
+        <div class="day-title">수요일 — 영상 싱크 + 업로드</div>
+        <div class="day-subtitle">FCP 편집 · 내보내기 · 유튜브 업로드</div>
+      </div>
+      <div class="day-duration">60분</div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="tasks">
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">00:00~10:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">FCP 임포트 + Multicam 생성</div>
+          <div class="task-detail">FCP 임포트 → 360° 클립 + Logic 오디오 임포트 → Multicam Clip 생성 (자동 동기화)</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">10:00~20:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">구도 설정 + PIP</div>
+          <div class="task-detail">Reorient Pan/Tilt로 메인 구도 고정 → PIP 클립 추가 및 위치 설정</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">20:00~30:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">풀 모니터링</div>
+          <div class="task-detail">싱크 확인 / 구도 확인 / 오디오 재수정 없음</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">30:00~50:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">내보내기</div>
+          <div class="task-detail">HEVC 10-bit 4K로 내보내기</div>
+        </div>
+      </div>
+      <div class="task-item" onclick="toggleTask(this)">
+        <div class="task-time">50:00~60:00</div>
+        <div class="task-check">✓</div>
+        <div class="task-content">
+          <div class="task-name">업로드 + 폴더 정리</div>
+          <div class="task-detail">유튜브 업로드 → RAW / MIX / EXPORT 폴더 정리</div>
+        </div>
+      </div>
+      <div class="day-note">
+        💡 수요일은 오디오 재수정 없이 싱크·내보내기만. 여기서 오디오 건드리면 시간 무한 증가.
+      </div>
+    </div>
+  </div>
+
+  <!-- Save / Load Bar -->
+  <div class="save-bar">
+    <button class="btn btn-save" onclick="saveProgress()">💾 저장 (JSON)</button>
+    <button class="btn btn-load" onclick="document.getElementById('fileInput').click()">📂 불러오기</button>
+    <button class="btn btn-reset" onclick="resetProgress()">↺ 초기화</button>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadProgress(event)">
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Progress -->
+  <div class="progress-section">
+    <div class="progress-label">
+      <span>전체 진행률</span>
+      <span class="progress-pct" id="pct">0%</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function saveProgress() {
+    const tasks = document.querySelectorAll('.task-item');
+    const state = {
+      saved: new Date().toLocaleString('ko-KR'),
+      tasks: Array.from(tasks).map((t, i) => ({
+        index: i,
+        done: t.classList.contains('done'),
+        name: t.querySelector('.task-name')?.textContent || ''
+      })),
+      cards: ['card1','card2','card3'].map(id => ({
+        id,
+        open: document.getElementById(id).classList.contains('open')
+      }))
+    };
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const date = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `mix_schedule_${date}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('✅ 저장 완료!');
+  }
+
+  function loadProgress(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const state = JSON.parse(e.target.result);
+        const tasks = document.querySelectorAll('.task-item');
+        state.tasks.forEach(t => {
+          if (tasks[t.index]) {
+            tasks[t.index].classList.toggle('done', t.done);
+          }
+        });
+        state.cards.forEach(c => {
+          const card = document.getElementById(c.id);
+          if (card) card.classList.toggle('open', c.open);
+        });
+        updateProgress();
+        showToast(`📂 불러오기 완료 (${state.saved})`);
+      } catch {
+        showToast('⚠️ 파일을 읽을 수 없어요');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  function resetProgress() {
+    if (!confirm('체크 상태를 모두 초기화할까요?')) return;
+    document.querySelectorAll('.task-item.done').forEach(t => t.classList.remove('done'));
+    updateProgress();
+    showToast('↺ 초기화 완료');
+  }
+
+  // 테마 토글
+  const root = document.documentElement;
+  const toggleBtn = document.getElementById('themeToggle');
+
+  // 시스템 기본값 감지
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  let currentTheme = localStorage.getItem('mix-theme') || (prefersDark ? 'dark' : 'light');
+
+  function applyTheme(theme) {
+    root.setAttribute('data-theme', theme);
+    toggleBtn.textContent = theme === 'dark' ? '🌙' : '☀️';
+    localStorage.setItem('mix-theme', theme);
+    currentTheme = theme;
+  }
+
+  applyTheme(currentTheme);
+
+  toggleBtn.addEventListener('click', () => {
+    applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    showToast(currentTheme === 'dark' ? '🌙 다크 모드' : '☀️ 라이트 모드');
+  });
+
+  // 시스템 모드 변경 감지 (수동 토글 안 한 경우에만)
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+    if (!localStorage.getItem('mix-theme')) {
+      applyTheme(e.matches ? 'dark' : 'light');
+    }
+  });
+
+  function toggleCard(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  function toggleTask(el) {
+    el.classList.toggle('done');
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.task-item');
+    const done = document.querySelectorAll('.task-item.done');
+    const pct = Math.round((done.length / all.length) * 100);
+    document.getElementById('pct').textContent = pct + '%';
+    document.getElementById('progressFill').style.width = pct + '%';
+  }
+
+  // 초기 상태: 모든 카드 닫기 (DAY1만 열려있음)
+  document.getElementById('card2').classList.remove('open');
+  document.getElementById('card3').classList.remove('open');
+
+  // 초기 진행률
+  updateProgress();
+</script>
+</body>
+</html>
